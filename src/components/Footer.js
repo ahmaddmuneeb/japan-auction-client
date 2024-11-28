@@ -12,7 +12,7 @@ import {
   Image,
 } from "@chakra-ui/react";
 import { FaFacebook, FaInstagram } from "react-icons/fa";
-import LOGO from "../assets/makar-logo-official.png";
+// import LOGO from "../assets/makar-logo-official.png";
 import { ToastContainer } from "react-toastify";
 import moment from "moment";
 
@@ -97,29 +97,29 @@ export default function Footer() {
           // justify-items="end"
         >
           <Stack spacing={6}>
-            <Box>
+            {/* <Box>
               <Image
                 objectFit="contain"
                 src={LOGO}
                 alt="Dan Abramov"
                 w={{ md: "34%", base: "60%" }}
               />
-            </Box>
+            </Box> */}
             <Text fontSize={"lg"} color="blue.900" fontWeight={"bold"}>
-              © {moment().format("YYYY")} Makarauto. All rights reserved
+              © {moment().format("YYYY")} JA. All rights reserved
             </Text>
             <Stack direction={"row"} spacing={6}>
               <SocialButton
                 label={"Facebook"}
                 href={
-                  "https://www.facebook.com/people/MakarAuto/100092001133498/"
+                  "https://www.facebook.com/"
                 }
               >
                 <FaFacebook size={"20px"} />
               </SocialButton>
               <SocialButton
                 label={"Instagram"}
-                href={"https://www.instagram.com/makarauto.ca/"}
+                href={"https://www.instagram.com/"}
               >
                 <FaInstagram size={"20px"} />
               </SocialButton>
@@ -136,7 +136,7 @@ export default function Footer() {
               }}
               fontWeight={"400"}
               color={"blue.900"}
-              href={"#/about-us"}
+              // href={"#/about-us"}
             >
               About us
             </Box>
@@ -147,7 +147,7 @@ export default function Footer() {
               }}
               fontWeight={"400"}
               color={"blue.900"}
-              href={"#/contact-us"}
+              // href={"#/contact-us"}
             >
               Contact us
             </Box>
@@ -158,7 +158,7 @@ export default function Footer() {
               }}
               fontWeight={"400"}
               color={"blue.900"}
-              href={"#/inventory"}
+              // href={"#/inventory"}
             >
               Inventory 🚗
             </Box>
@@ -192,7 +192,7 @@ export default function Footer() {
             </Text>
             <Box
               as="a"
-              href={"#/contact-us"}
+              // href={"#/contact-us"}
               _hover={{
                 color: "blue.700",
               }}
@@ -208,7 +208,7 @@ export default function Footer() {
               }}
               fontWeight={"400"}
               color={"blue.900"}
-              href={"#/termsandconditions"}
+              // href={"#/termsandconditions"}
             >
               Terms of Service
             </Box>
@@ -219,7 +219,7 @@ export default function Footer() {
               }}
               fontWeight={"400"}
               color={"blue.900"}
-              href={"#/privacypolicy"}
+              // href={"#/privacypolicy"}
             >
               Privacy Policy
             </Box>
@@ -230,7 +230,7 @@ export default function Footer() {
               }}
               fontWeight={"400"}
               color={"blue.900"}
-              href={"#/reviews"}
+              // href={"#/reviews"}
             >
               Reviews
             </Box>

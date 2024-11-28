@@ -20,7 +20,8 @@ const App = () => {
     <HashRouter>
       <Routes>
         <Route path="/" element={<UserLayout />}>
-          <Route index element={<HomePage />} />
+          {/* <Route index element={<HomePage />} /> */}
+          <Route index element={<Sidebar />} />
           <Route path="/about-us" element={<AboutUs />} />
           <Route path="/contact-us" element={<ContactUS />} />
           <Route path="/finance" element={<FinacialPage />} />
@@ -28,15 +29,9 @@ const App = () => {
           <Route path="/termsandconditions" element={<TermsAndCondition />} />
           <Route path="/reviews" element={<Reviews />} />
           <Route path="/inventory" element={<Sidebar />} />
-          <Route
-            path="/five-minutes-appointment"
-            element={<AppointmentIFrames5 />}
-          />
+          <Route path="/five-minutes-appointment" element={<AppointmentIFrames5 />} />
           <Route path="/get-car-loan" element={<GetCarLoan />} />
-          <Route
-            path="/physical-appointment"
-            element={<AppointmentIFrames30 />}
-          />
+          <Route path="/physical-appointment" element={<AppointmentIFrames30 />} />
           <Route path="/vehicle/:vehicleId" element={<DescriptionPage />} />
           <Route path="/subscriber/:id" element={<DeleteSubscriber />} />
         </Route>

@@ -15,13 +15,9 @@ const Headline = () => {
       flexDirection={{ md: "row", base: "column" }}
     >
       <Box>
-        <Text
-          fontSize="sm"
-          textAlign={{ base: "center" }}
-          fontWeight={"semibold"}
-        >
-          « Welcome to Makar Auto! We specialize in helping you to drive the
-          vehicle you want at payments you can afford »
+        <Text fontSize="sm" textAlign={{ base: "center" }} fontWeight={"semibold"}>
+          « Welcome to Japan Auction! We specialize in helping you to drive the vehicle you want at
+          payments you can afford »
         </Text>
       </Box>
       <Flex alignItems="center">
@@ -31,7 +27,7 @@ const Headline = () => {
           colorScheme="white"
           mr={2}
           as={"a"}
-          href="https://www.facebook.com/people/MakarAuto/100092001133498/"
+          href="https://www.facebook.com/"
           target="_blank"
         />
         <IconButton
@@ -39,12 +35,12 @@ const Headline = () => {
           icon={<FaInstagram />}
           colorScheme="white"
           as={"a"}
-          href="https://www.instagram.com/makarauto.ca/"
+          href="https://www.instagram.com/"
           target="_blank"
         />
         <IconButton aria-label="Phone" icon={<BiPhone />} colorScheme="white" />
         <Text fontSize="sm" color="white" mr={4}>
-          +1 (647) 694-9562
+          +1 (000) 000-0000
         </Text>
       </Flex>
     </Flex>

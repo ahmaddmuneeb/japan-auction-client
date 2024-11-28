@@ -45,7 +45,7 @@ const AppointmentButton = ({ animation }) => {
 
   return (
     <Menu>
-      <MenuButton as={Button} {...buttonStyles}>
+      {/* <MenuButton as={Button} {...buttonStyles}>
         Book an Appointment
       </MenuButton>
       <MenuList>
@@ -58,7 +58,7 @@ const AppointmentButton = ({ animation }) => {
         <MenuItem as={Link} to="/physical-appointment">
           <MdDriveEta /> <Box ml={4}>Physical Meet-up</Box>
         </MenuItem>
-      </MenuList>
+      </MenuList> */}
     </Menu>
   );
 };

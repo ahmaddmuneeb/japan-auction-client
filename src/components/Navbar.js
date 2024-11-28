@@ -82,15 +82,15 @@ export default function Navbar() {
               cursor={"pointer"}
               onClick={() => navigate("/")}
             >
-              <Image
+              {/* <Image
                 objectFit="cover"
                 src={LOGO}
                 alt="Logo"
                 ml={{ base: 10 }}
                 w={{ md: "40%", base: "40%" }}
-              />
+              /> */}
             </Box>
-            <Text
+            {/* <Text
               onClick={() => navigate("/inventory")}
               ml={{ base: -3, md: 10 }}
               mt={2}
@@ -105,7 +105,7 @@ export default function Navbar() {
               }
             >
               Inventory 🚗
-            </Text>
+            </Text> */}
           </Box>
           <Flex display={{ base: "none", md: "flex" }} mr={8}>
             <DesktopNav isLinkActive={isLinkActive} />
@@ -293,8 +293,8 @@ const NAV_ITEMS = [
     label: "Home",
     href: "/",
   },
-  {
-    label: "Inventory",
-    href: "/#/inventory",
-  },
+  // {
+  //   label: "Inventory",
+  //   href: "/#/inventory",
+  // },
 ];

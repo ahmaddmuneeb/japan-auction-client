@@ -1,395 +1,78 @@
 // SideBar.jsx
 import React, { useState, useEffect } from "react";
-import { Flex, CircularProgress, Box, Heading } from "@chakra-ui/react";
-import VehicleFilter from "./VehicleFilter";
-import FilteredVehicleList from "./FilteredVehicleList";
-import axios from "axios";
-import { debounce } from "lodash";
-import { useSelector, useDispatch } from "react-redux";
-import { current } from "@reduxjs/toolkit";
 import {
-  selectSearchBy,
-  setSearchBy,
-  clearSearchBy,
-  selectFilters,
-  setFilters,
-  selectSearchFilter,
-  clearSearchFilters,
-} from "../redux/slices/counterSlice";
-import SortDropdown from "./SortDropdown";
+  Flex,
+  CircularProgress,
+  Box,
+  Heading,
+  Container,
+  Stack,
+  Text,
+  Image,
+  Divider,
+  Tooltip,
+  Button,
+} from "@chakra-ui/react";
+import axios from "axios";
+import { formatNumberWithCommas } from "../utils/formatNumberWithCommas";
+// import SortDropdown from "./SortDropdown";
 
-const apiSecretKey = process.env.REACT_APP_SECRET_KEY;
 const apiUrl = process.env.REACT_APP_URL;
-const headers = {
-  "api-key": apiSecretKey,
-};
 
 const SideBar = () => {
-  const selectedFilters = useSelector(selectFilters);
-  const selectedSearchFilter = useSelector(selectSearchFilter);
-  const [makes, setMakes] = useState([]);
-  const [models, setModels] = useState([]);
-  // const [transmissions, setTransmissions] = useState([]);
-  const [sortBy, setSortBy] = useState(selectedFilters.sortBy);
-  const [sortOrder, setSortOrder] = useState(selectedFilters.sortOrder);
+  const [carsData, setCarsData] = useState([]);
+  const [carsLoading, setCarsLoading] = useState(false);
+  // const [page, setPage] = useState(1);
+  const [nextUrl, setNextUrl] = useState(null);
+  const [prevUrl, setPrevUrl] = useState(null);
 
-  const [driveTrain, setDriveTrain] = useState([]);
-  const [bodyStyle, setBodyStyle] = useState([]);
-  const [fuel_type, setFuelType] = useState([]);
-  const [selectedFuelType, setSelectedFuelType] = useState(
-    selectedFilters.fuel_type
-  );
-  const [selectedMakes, setSelectedMakes] = useState(selectedFilters.makes);
-  const [selectedModels, setSelectedModels] = useState(selectedFilters.models);
-  const [selectedDriveTrain, setSelectedDriveTrain] = useState(
-    selectedFilters.drive_train
-  );
-  const [selectedBodyStyle, setSelectedBodyStyle] = useState(
-    selectedFilters.body_style
-  );
-  const [yearRange, setYearRange] = useState(selectedFilters.yearRange);
-  const [mileageRange, setMileageRange] = useState(
-    selectedFilters.mileageRange
-  );
-  const [priceRange, setPriceRange] = useState(selectedFilters.priceRange);
-  const [vehicles, setVehicles] = useState([]);
-  const [keywords, setKeywords] = useState("");
-  const [currentPage, setCurrentPage] = useState(1);
-  const [filterType, setFilterType] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [rangeLoading, setRangeLoading] = useState(false);
-  const [vehicleComponentLoading, setVehicleComponentLoading] = useState(false);
-  const [applyFilters, setApplyFilters] = useState(false);
-  const [lock, setLock] = useState(false);
-  // const [selectedTransmissions, setSelectedTransmissions] = useState([]);
-  const dispatch = useDispatch();
-  const selectedCarType = useSelector(selectSearchBy);
-
-  // console.log("selectedFilters :::: ", selectedFilters);
   useEffect(() => {
-    // // console.log("selectedSearchFilters :::: ", selectedSearchFilter);
-    // if(selectedSearchFilter){
-    //   if(selectedSearchFilter.makes.length != 0 && selectedSearchFilter.makes[0] != ""){
-    //     // console.log("selcted makes called" ,selectedSearchFilter.makes )
-    //     // setSelectedMakes(selectedSearchFilter.makes);
-    //     handleMakeChange(selectedSearchFilter.makes[0])
-    //   }
-    //   if(selectedSearchFilter.body_style.length != 0 && selectedSearchFilter.body_style[0] != ""  ){
-    //     // console.log("Bodystyles called" , selectedSearchFilter.body_style)
-    //     // setSelectedBodyStyle(selectedSearchFilter.body_style);
-    //     handleBodyChange(selectedSearchFilter.body_style[0])
-
-    //   }
-    //   if(selectedSearchFilter.drive_train.length != 0 && selectedSearchFilter.drive_train[0] != ""){
-    //     // console.log("selcted drive train" , selectedSearchFilter.drive_train)
-    //     // setSelectedDriveTrain(selectedSearchFilter.drive_train);
-    //     handleDriveChange(selectedSearchFilter.drive_train[0])
-
-    //   }
-    //   if(selectedSearchFilter.model.length != 0 && selectedSearchFilter.model[0] != ""){
-    //     // console.log("selcted models called",selectedSearchFilter.model)
-    //     // setSelectedModels(selectedSearchFilter.model);
-    //     handleModelChange(selectedSearchFilter.model[0]);
-    //   }
-
-    //   // if(selectedSearchFilter.priceRange != [0, 85000]){
-    //   //   console.log("selcted prcerange called")
-
-    //   //   setPriceRange(selectedSearchFilter.priceRange);
-    //   // }
-
-    // }
-
-    axios
-      .get(`${apiUrl}/vehicles/get-makes`)
-      .then((response) => setMakes(response.data))
-      .catch((error) => console.error("Error fetching makes:", error));
-
-    axios
-      .get(`${apiUrl}/vehicles/drive-train-body-style`)
-      .then((response) => {
-        setBodyStyle(response.data.bodyStyles);
-        setDriveTrain(response.data.driveTrains);
-        setFuelType(response.data.fuelTypes);
-      })
-      .catch((error) => console.error("Error fetching makes:", error));
-
-    axios
-      .get(`${apiUrl}/vehicles/range-stats`)
-      .then((response) => {
-        const {
-          lowestYear,
-          highestYear,
-          lowestMileage,
-          highestMileage,
-          lowestPrice,
-          highestPrice,
-        } = response.data;
-
-        setYearRange([parseInt(lowestYear), parseInt(highestYear)]);
-        setMileageRange([parseInt(lowestMileage), parseInt(highestMileage)]);
-        setPriceRange([parseFloat(lowestPrice), parseFloat(highestPrice)]);
-        setRangeLoading(!rangeLoading);
-      })
-      .catch((error) => console.error("Error fetching makes:", error));
-
-    if (selectedMakes.length > 0) {
-      axios
-        .get(`${apiUrl}/vehicles/get-models`, {
-          params: { makes: selectedMakes.join(",") },
-        })
-        .then((response) => {
-          setModels(response.data);
-        })
-        .catch((error) => {
-          console.error("Error fetching models:", error);
-        });
-    }
-
-    if (!selectedCarType) {
-      handleApplyFilters(currentPage);
-      // runKeywordSearchAPI(keywords, currentPage);
-    } else {
-      setApplyFilters(true);
-      axios
-        .post(`${apiUrl}/vehicles/filter-vehicles`, {
-          body_style: selectedCarType,
-          page: 1,
-        })
-        .then((response) => {
-          setFilterType("filter");
-          setVehicles(response.data);
-          setCurrentPage(1);
-          setLoading(false);
-          setVehicleComponentLoading(false);
-          handleBodyChange(selectedCarType);
-          dispatch(clearSearchBy());
-        })
-        .catch((error) => console.error("Error applying filters:", error));
-    }
-    console.log("SIDE BAR MOUNTS");
-    dispatch(clearSearchFilters());
-
-    return () => {
-      setVehicles([]);
-      console.log("SIDE BAR UNMOUNTS");
-    };
+    getCarsNow(apiUrl);
   }, []);
 
-  useEffect(() => {
-    if (applyFilters) {
-      setLoading(true);
-      handleApplyFilters(currentPage);
-    }
-  }, [applyFilters, setApplyFilters]);
-
-  // Use debounce for the keyword change
-  const debouncedKeywordChange = debounce((value, currentPage) => {
-    setKeywords(value);
-    setLock(true);
-    runKeywordSearchAPI(value, currentPage);
-  }, 1000);
-
-  useEffect(() => {
-    if (selectedMakes.length == 0) {
-      setSelectedModels([]);
-    }
-  }, [selectedMakes, setMakes]);
-
-  useEffect(() => {
-    if (filterType == "search") {
-      setLoading(true);
-      setLock(true);
-      runKeywordSearchAPI(keywords, currentPage);
-    } else if (filterType == "filter") {
-      setLoading(true);
-      handleApplyFilters(currentPage);
-    }
-  }, [currentPage, setCurrentPage]);
-
-  const runKeywordSearchAPI = async (keywords, page = 1) => {
+  const getCarsNow = async (page) => {
+    setCarsLoading(true);
+    // console.log("apiUrl", apiUrl);
     try {
-      if (!lock) {
-        setVehicleComponentLoading(true);
-
-        const response = await axios.get(`${apiUrl}/vehicles/search`, {
-          params: { keywords, page },
-        });
-
-        setFilterType("search");
-        setVehicles(response.data);
-        setCurrentPage(page);
-        setLoading(false);
-        setVehicleComponentLoading(false);
-        setLock(false);
-      }
-    } catch (error) {
-      console.error("Error fetching search results:", error);
-    }
-  };
-
-  const handleMakeChange = async (make) => {
-    // console.log("handlemakechangecalled")
-    const updatedMakes = selectedMakes.includes(make)
-      ? selectedMakes.filter((selectedMake) => selectedMake !== make)
-      : [...selectedMakes, make];
-    try {
-      const response = await axios.get(`${apiUrl}/vehicles/get-models`, {
-        params: { makes: updatedMakes.join(",") },
+      let response = await axios.get(page, {
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
       });
-      setModels(response.data);
+      // console.log({
+      //   response: response?.data,
+      // });
+      setCarsData(response?.data);
+      setNextUrl(response?.data?.next);
+      setPrevUrl(response?.data?.previous);
+      setCarsLoading(false);
     } catch (error) {
-      console.error("Error fetching models:", error);
+      console.error("Error fetching cars:", error);
+      setCarsLoading(false);
     }
-    setSelectedMakes(updatedMakes);
-    setApplyFilters(true);
   };
 
-  const handleSortSelect = (selectedSort) => {
-    // console.log("SELECTED SORT",selectedSort);
-    const [sortField, sortDirection] = selectedSort.split(",");
-    // console.log(sortField,sortDirection);
-    setSortBy(sortField);
-    setSortOrder(sortDirection);
-    setApplyFilters(true);
-  };
-
-  const handleModelChange = (model) => {
-    setSelectedModels((prevModels) =>
-      prevModels.includes(model)
-        ? prevModels.filter((selectedModel) => selectedModel !== model)
-        : [...prevModels, model]
-    );
-    setApplyFilters(true);
-  };
-
-  // const handleTransmissionChange = (trans) => {
-  //   setSelectedTransmissions((prevtrans) =>
-  //     prevtrans.includes(trans)
-  //       ? prevtrans.filter((selectedTransmissions) => selectedTransmissions !== trans)
-  //       : [...prevtrans, trans]
-  //   );
-  //   setApplyFilters(true)
-
+  // const setNextPage = () => {
+  //   if (carsData && carsData.length > 0) {
+  //     if (!carsData?.previous) {
+  //       setPage((prev) => prev + 1);
+  //     }
+  //   }
   // };
 
-  const handleDriveChange = (trans) => {
-    setSelectedDriveTrain((prevtrans) =>
-      prevtrans.includes(trans)
-        ? prevtrans.filter((selectedDriveTrain) => selectedDriveTrain !== trans)
-        : [...prevtrans, trans]
-    );
-    setApplyFilters(true);
-  };
+  // const setPreviousPage = () => {
+  //   if (carsData && carsData.length > 0) {
+  //     if (!carsData?.previous) {
+  //       setPage((prev) => prev - 1);
+  //     }
+  //   }
+  // };
 
-  const handleFuelTypes = (fuel) => {
-    setSelectedFuelType((prevFuel) =>
-      prevFuel.includes(fuel)
-        ? prevFuel.filter((selectedFuelType) => selectedFuelType !== fuel)
-        : [...prevFuel, fuel]
-    );
-    setApplyFilters(true);
-  };
-
-  const handleBodyChange = (trans) => {
-    setSelectedBodyStyle((prevtrans) =>
-      prevtrans.includes(trans)
-        ? prevtrans.filter((selectedBodyStyle) => selectedBodyStyle !== trans)
-        : [...prevtrans, trans]
-    );
-    setApplyFilters(true);
-  };
-
-  const handleYearChange = (range) => {
-    setYearRange(range);
-    setApplyFilters(true);
-  };
-
-  const handleMileageChange = (range) => {
-    setMileageRange(range);
-    setApplyFilters(true);
-  };
-  const handlePriceChange = (range) => {
-    setPriceRange(range);
-    setApplyFilters(true);
-  };
-
-  const handleKeywordChange = (value) => {
-    setVehicleComponentLoading(true);
-    debouncedKeywordChange(value);
-  };
-
-  const handleApplyFilters = (page = 1) => {
-    setVehicleComponentLoading(true);
-    setLock(true);
-    runFilterAPI(page);
-  };
-
-  const runFilterAPI = async (page) => {
-    try {
-      const savedFilters = {
-        makes: selectedMakes,
-        models: selectedModels,
-        yearRange,
-        mileageRange,
-        priceRange,
-        drive_train: selectedDriveTrain,
-        body_style: selectedBodyStyle,
-        fuel_type: selectedFuelType,
-        sortBy,
-        sortOrder,
-        page,
-        change: true,
-      };
-      // console.log(savedFilters ,"::::::: ")
-      dispatch(setFilters(savedFilters));
-      if (!lock) {
-        const response = await axios.post(
-          `${apiUrl}/vehicles/filter-vehicles`,
-          {
-            makes: selectedMakes,
-            models: selectedModels,
-            yearRange,
-            mileageRange,
-            priceRange,
-            drive_train: selectedDriveTrain,
-            body_style: selectedBodyStyle,
-            fuel_type: selectedFuelType,
-            keywords,
-            sortBy,
-            sortOrder,
-            page,
-          }
-        );
-        setFilterType("filter");
-        setVehicles(response.data);
-        setCurrentPage(page);
-        setLoading(false);
-        setVehicleComponentLoading(false);
-        setApplyFilters(false);
-        setLock(false);
-        if (response.data.length == 0) {
-          setCurrentPage(1);
-        }
-      }
-    } catch (error) {
-      console.error("Error applying filters:", error);
-    }
-  };
   return (
     <div>
-      <Flex
-        ml={{ base: "0", md: "7.5%" }}
-        flexDirection={{ base: "column", md: "row" }}
-      >
-        {/* const [selectedMakes, setSelectedMakes] = useState([]);
-  const [selectedModels, setSelectedModels] = useState([]);
-  const [selectedDriveTrain, setSelectedDriveTrain] = useState([]);
-  const [selectedBodyStyle, setSelectedBodyStyle] = useState([]); 
-  const [yearRange, setYearRange] = useState([2007, 2023]); 
-  const [mileageRange, setMileageRange] = useState([7000, 228000]);
-  const [priceRange, setPriceRange] = useState([0, 85000]); */}
-        <VehicleFilter
+      <Flex ml={{ base: "0", md: "7.5%" }} flexDirection={{ base: "column", md: "row" }}>
+        {/* <VehicleFilter
           makes={makes}
           models={models}
           YearRange={yearRange}
@@ -426,32 +109,201 @@ const SideBar = () => {
           onKeywordChange={handleKeywordChange}
           onApplyFilters={() => handleApplyFilters()}
           rangeLoading={rangeLoading}
-        />
-        {vehicleComponentLoading ? (
+        /> */}
+        {carsLoading ? (
           <>
-            <Flex
-              justifyContent="center"
-              h={"80vh"}
-              alignItems="center"
-              w={"100%"}
-            >
+            <Flex justifyContent="center" h={"80vh"} alignItems="center" w={"100%"}>
               <CircularProgress isIndeterminate color="blue.900" />
             </Flex>
           </>
         ) : (
           <>
-            {vehicles?.data?.length > 0 ? (
+            {carsData?.results?.length > 0 ? (
               <>
-                <FilteredVehicleList
-                  vehicles={vehicles}
-                  currentPage={currentPage}
-                  setCurrentPage={setCurrentPage}
-                  filterType={filterType}
-                  loading={loading}
-                  setLoading={setLoading}
-                  handleSortSelect={handleSortSelect}
-                  vehicleComponentLoading={vehicleComponentLoading}
-                />
+                <Box w={"100%"}>
+                  <Container maxW={"8xl"} py={{ md: 8, base: 16 }} as={Stack} spacing={10}>
+                    <Flex px={4} flexDirection={"column"}>
+                      <Text fontWeight={"bold"} fontSize={"4xl"} color={"blue.900"}>
+                        Vehicles
+                      </Text>
+                      {/* <Box w={{ base: "100%", md: "15%" }} mt={4}>
+                        <SortDropdown onSelectSort={handleSortSelect} />
+                      </Box> */}
+                    </Flex>
+                    <Flex alignItems="center" flexWrap="wrap" w={"full"}>
+                      {carsData?.results?.map((car) => (
+                        <Flex
+                          px={4}
+                          pb={8}
+                          w={{ base: "100%", md: "calc(100% / 4)" }}
+                          alignItems="center"
+                          key={car?.id}
+                        >
+                          <Box
+                            cursor={"pointer"}
+                            maxW="sm"
+                            borderWidth="1px"
+                            rounded="lg"
+                            shadow={`0 4px 6px -1px ${"#ddd"}, 0 2px 4px -1px ${"#ddd"}`}
+                            position="relative"
+                          >
+                            <Box position="relative" maxH="400px">
+                              <Image
+                                src={`${car?.images[0].image_url}`}
+                                alt="Main Featured Image"
+                                roundedTop="lg"
+                              />
+                            </Box>
+
+                            <Box px="4" py={4}>
+                              <Flex justifyContent={"space-between"} alignItems={"center"}>
+                                <Box>
+                                  <Flex flexDirection={"column"} justifyContent={"center"}>
+                                    <Box
+                                      as="span"
+                                      fontSize="lg"
+                                      fontWeight={"semibold"}
+                                      color="black"
+                                    >
+                                      Make
+                                    </Box>{" "}
+                                    <Text fontWeight={"semibold"} fontSize="xl">
+                                      {" "}
+                                      {car?.car_brand_name}
+                                    </Text>
+                                  </Flex>
+                                </Box>
+                                <Divider flex={1} orientation="horizontal" mx={3} />
+                                <Box>
+                                  <Flex flexDirection={"column"} justifyContent={"center"}>
+                                    <Box
+                                      as="span"
+                                      fontSize="lg"
+                                      fontWeight={"semibold"}
+                                      color="black"
+                                    >
+                                      Model
+                                    </Box>{" "}
+                                    <Text fontWeight={"semibold"} fontSize="xl">
+                                      {" "}
+                                      {car?.car_year}
+                                    </Text>
+                                  </Flex>
+                                </Box>
+                              </Flex>
+                              <Flex mt="1" justifyContent="space-between" alignContent="center">
+                                <Box
+                                  fontSize="md"
+                                  as="h4"
+                                  cursor={"pointer"}
+                                  textAlign={"left"}
+                                  color={"black"}
+                                  h={"76px"}
+                                  my={2}
+                                  overflow="hidden"
+                                  textOverflow="ellipsis"
+                                >
+                                  <Tooltip
+                                    label={car?.car_name}
+                                    bg="white"
+                                    placement={"top"}
+                                    fontSize={"sm"}
+                                    color={"blue.900"}
+                                  >
+                                    {car?.car_name}
+                                  </Tooltip>
+                                </Box>
+                              </Flex>
+
+                              <Flex justifyContent="space-between">
+                                <Flex alignContent="center" flexDirection={"column"} flex={3}>
+                                  <Flex
+                                    flexDirection={"row"}
+                                    alignItems={"center"}
+                                    justifyContent={"space-between"}
+                                    mt={2}
+                                    w={"100%"}
+                                  >
+                                    <Box
+                                      fontSize="2xl"
+                                      fontWeight={"semibold"}
+                                      color="black"
+                                      flex={1.5}
+                                    >
+                                      <Box as="span" color={"black"}>
+                                        ¥
+                                      </Box>
+                                      {`${formatNumberWithCommas(
+                                        parseInt(car?.total_price).toString()
+                                      )}`}
+                                    </Box>
+
+                                    <Divider flex={1} orientation="horizontal" mx={3} />
+                                    <Box
+                                      as="span"
+                                      fontSize={"10px"}
+                                      flex={2}
+                                      fontWeight={"normal"}
+                                      textAlign={"right"}
+                                    >
+                                      + HST & Licensing
+                                    </Box>
+                                  </Flex>
+
+                                  <Flex flexDirection={"row"} mt={2} alignItems={"center"}>
+                                    <Box
+                                      fontSize="md"
+                                      fontWeight={"semibold"}
+                                      color="black"
+                                      flex={2}
+                                    >
+                                      {`${car?.distance} ${"KM"}`}
+                                    </Box>
+                                    <Divider flex={1.5} orientation="horizontal" mx={3} />
+                                    <Box
+                                      as="span"
+                                      fontSize={"10px"}
+                                      fontWeight={"normal"}
+                                      flex={2}
+                                      textAlign={"right"}
+                                    >
+                                      Mileage
+                                    </Box>
+                                  </Flex>
+                                </Flex>
+                              </Flex>
+                            </Box>
+                          </Box>
+                        </Flex>
+                      ))}
+                    </Flex>
+                    <Flex align="center" justify={"center"} mt={4}>
+                      <Button
+                        color={"white"}
+                        bgColor="blue.900"
+                        _hover={{ bgColor: "blue.800" }}
+                        onClick={() => prevUrl && getCarsNow(prevUrl)}
+                        isDisabled={!prevUrl}
+                        width={"16%"}
+                        mx={4}
+                      >
+                        Previous
+                      </Button>
+                      {/* <div className="px-4"> View More </div> */}
+                      <Button
+                        color={"white"}
+                        bgColor="blue.900"
+                        _hover={{ bgColor: "blue.800" }}
+                        onClick={() => nextUrl && getCarsNow(nextUrl)}
+                        isDisabled={!nextUrl}
+                        width={"16%"}
+                        mx={2}
+                      >
+                        Next
+                      </Button>
+                    </Flex>
+                  </Container>
+                </Box>
               </>
             ) : (
               <>
