@@ -1,0 +1,42 @@
+/* src/components/ImageGallery.css */
+
+.image-gallery-container {
+  width: 100%;
+  /* max-width: 50vw;  */
+  overflow: hidden;
+  position: relative;
+}
+
+.image-gallery-scroll {
+  display: flex;
+  overflow-x: hidden;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+}
+
+.image-gallery-item {
+  flex: 0 0 auto;
+  scroll-snap-align: start;
+  cursor: pointer;
+  margin-right: 5px; /* Adjust spacing between images */
+  max-width: 20%; /* Make images responsive within the container */
+}
+
+.scroll-button {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 25px;
+  background-color: rgba(200, 200, 200, 0.3); /* Light gray with 0.3 opacity */
+  border: none;
+  cursor: pointer;
+  color: black;
+}
+
+.scroll-button.left {
+  left: 10px;
+}
+
+.scroll-button.right {
+  right: 10px;
+}
