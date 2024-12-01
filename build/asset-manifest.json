@@ -1,0 +1,24 @@
+{
+  "files": {
+    "main.css": "/static/css/main.21eb6423.css",
+    "main.js": "/static/js/main.3743f7d8.js",
+    "static/media/2.jpeg": "/static/media/2.6b5f1a2181ead4898555.jpeg",
+    "static/media/car.jpg": "/static/media/car.0964aa265263dd8c4831.jpg",
+    "static/media/backgroundImage.png": "/static/media/backgroundImage.54adc7ce461fe326e902.png",
+    "static/media/card2.png": "/static/media/card2.7400b94ff8f9068ab5dd.png",
+    "static/media/card1.png": "/static/media/card1.f561405f37c11c6870c5.png",
+    "static/media/card3.png": "/static/media/card3.9b9e4d3c32c44717ff9c.png",
+    "static/media/ram.jpeg": "/static/media/ram.16e91189de5c8ed70fa2.jpeg",
+    "static/media/suv.jpeg": "/static/media/suv.14945e6e9b25ccfb8f48.jpeg",
+    "static/media/sedan.jpeg": "/static/media/sedan.21568447b7916af337f4.jpeg",
+    "static/media/heading.png": "/static/media/heading.07cbd5c368db6046c8ca.png",
+    "static/media/makar-logo-official.png": "/static/media/makar-logo-official.4d7371a02c4826806947.png",
+    "index.html": "/index.html",
+    "main.21eb6423.css.map": "/static/css/main.21eb6423.css.map",
+    "main.3743f7d8.js.map": "/static/js/main.3743f7d8.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.21eb6423.css",
+    "static/js/main.3743f7d8.js"
+  ]
+}
