@@ -11,13 +11,15 @@ import {
   Image,
   Divider,
   Tooltip,
-  Button,
+  IconButton,
 } from "@chakra-ui/react";
 import axios from "axios";
 import { formatNumberWithCommas } from "../utils/formatNumberWithCommas";
+import { FaChevronLeft, FaChevronRight } from "react-icons/fa6";
+
 // import SortDropdown from "./SortDropdown";
 
-const apiUrl = "http://54.153.48.69:8000/api/cars/";
+const apiUrl = "http://54.153.48.69:8000/api/cars/?page=1";
 
 const SideBar = () => {
   const [carsData, setCarsData] = useState([]);
@@ -25,14 +27,17 @@ const SideBar = () => {
   // const [page, setPage] = useState(1);
   const [nextUrl, setNextUrl] = useState(null);
   const [prevUrl, setPrevUrl] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(0);
 
   useEffect(() => {
     getCarsNow(apiUrl);
   }, []);
 
   const getCarsNow = async (page) => {
+    console.log({ page: page });
     setCarsLoading(true);
-    // console.log("apiUrl", apiUrl);
+
     try {
       let response = await axios.get(page, {
         headers: {
@@ -40,34 +45,34 @@ const SideBar = () => {
           "Content-Type": "application/json",
         },
       });
-      // console.log({
-      //   response: response?.data,
-      // });
+
       setCarsData(response?.data);
       setNextUrl(response?.data?.next);
       setPrevUrl(response?.data?.previous);
+
+      const totalItems = response?.data?.count || 0;
+      const itemsPerPage = 50;
+      setTotalPages(Math.ceil(totalItems / itemsPerPage));
+
+      let currentPage = 1;
+      if (response?.data?.previous) {
+        const prevPageParam = new URL(response?.data?.previous).searchParams.get("page");
+        // console.log({ prevPageParam: prevPageParam });
+        currentPage = prevPageParam ? parseInt(prevPageParam) + 1 : 1;
+      } else if (response?.data?.next) {
+        const nextPageParam = new URL(response?.data?.next).searchParams.get("page");
+        // console.log({ nextPageParam: nextPageParam });
+        currentPage = nextPageParam ? parseInt(nextPageParam) - 1 : 1;
+      }
+
+      setCurrentPage(currentPage);
+
       setCarsLoading(false);
     } catch (error) {
       console.error("Error fetching cars:", error);
       setCarsLoading(false);
     }
   };
-
-  // const setNextPage = () => {
-  //   if (carsData && carsData.length > 0) {
-  //     if (!carsData?.previous) {
-  //       setPage((prev) => prev + 1);
-  //     }
-  //   }
-  // };
-
-  // const setPreviousPage = () => {
-  //   if (carsData && carsData.length > 0) {
-  //     if (!carsData?.previous) {
-  //       setPage((prev) => prev - 1);
-  //     }
-  //   }
-  // };
 
   return (
     <div>
@@ -122,9 +127,12 @@ const SideBar = () => {
               <>
                 <Box w={"100%"}>
                   <Container maxW={"8xl"} py={{ md: 8, base: 16 }} as={Stack} spacing={10}>
-                    <Flex px={4} flexDirection={"column"}>
+                    <Flex px={4} flexDirection={"row"} justify={"space-between"}>
                       <Text fontWeight={"bold"} fontSize={"4xl"} color={"blue.900"}>
-                        Vehicles
+                        Vehicles by GooNet
+                      </Text>
+                      <Text fontWeight={"bold"} fontSize={"xl"} color={"blue.900"} mt={4}>
+                        Total Car Count: {carsData?.count || 0}
                       </Text>
                       {/* <Box w={{ base: "100%", md: "15%" }} mt={4}>
                         <SortDropdown onSelectSort={handleSortSelect} />
@@ -148,11 +156,13 @@ const SideBar = () => {
                             position="relative"
                           >
                             <Box position="relative" maxH="400px">
-                              <Image
-                                src={`${car?.images[0].image_url}`}
-                                alt="Main Featured Image"
-                                roundedTop="lg"
-                              />
+                              {car?.images && car?.images.length > 0 ? (
+                                <Image
+                                  src={`${car?.images[0].image_url}`}
+                                  alt="Main Featured Image"
+                                  roundedTop="lg"
+                                />
+                              ) : null}
                             </Box>
 
                             <Box px="4" py={4}>
@@ -277,7 +287,7 @@ const SideBar = () => {
                         </Flex>
                       ))}
                     </Flex>
-                    <Flex align="center" justify={"center"} mt={4}>
+                    {/* <Flex align="center" justify={"center"} mt={4}>
                       <Button
                         color={"white"}
                         bgColor="blue.900"
@@ -289,7 +299,6 @@ const SideBar = () => {
                       >
                         Previous
                       </Button>
-                      {/* <div className="px-4"> View More </div> */}
                       <Button
                         color={"white"}
                         bgColor="blue.900"
@@ -301,6 +310,36 @@ const SideBar = () => {
                       >
                         Next
                       </Button>
+                    </Flex> */}
+                    <Flex align="center" justify={"space-between"} mt={4} mx={4}>
+                      <Text fontWeight="bold">
+                        Page {currentPage} of {totalPages}
+                      </Text>
+                      <Box align="center" justify={"space-between"}>
+                        <IconButton
+                          color={"white"}
+                          bgColor="blue.900"
+                          _hover={{ bgColor: "blue.800" }}
+                          onClick={() => prevUrl && getCarsNow(prevUrl)}
+                          isDisabled={!prevUrl}
+                          // width={"16%"}
+                          mx={4}
+                        >
+                          {/* Previous */}
+                          <FaChevronLeft />
+                        </IconButton>
+                        <IconButton
+                          color={"white"}
+                          bgColor="blue.900"
+                          _hover={{ bgColor: "blue.800" }}
+                          onClick={() => nextUrl && getCarsNow(nextUrl)}
+                          isDisabled={!nextUrl}
+                          // width={"16%"}
+                          mx={2}
+                        >
+                          <FaChevronRight />
+                        </IconButton>
+                      </Box>
                     </Flex>
                   </Container>
                 </Box>
