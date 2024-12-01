@@ -1,7 +1,7 @@
 {
   "files": {
     "main.css": "/static/css/main.21eb6423.css",
-    "main.js": "/static/js/main.3743f7d8.js",
+    "main.js": "/static/js/main.bf8e45a3.js",
     "static/media/2.jpeg": "/static/media/2.6b5f1a2181ead4898555.jpeg",
     "static/media/car.jpg": "/static/media/car.0964aa265263dd8c4831.jpg",
     "static/media/backgroundImage.png": "/static/media/backgroundImage.54adc7ce461fe326e902.png",
@@ -15,10 +15,10 @@
     "static/media/makar-logo-official.png": "/static/media/makar-logo-official.4d7371a02c4826806947.png",
     "index.html": "/index.html",
     "main.21eb6423.css.map": "/static/css/main.21eb6423.css.map",
-    "main.3743f7d8.js.map": "/static/js/main.3743f7d8.js.map"
+    "main.bf8e45a3.js.map": "/static/js/main.bf8e45a3.js.map"
   },
   "entrypoints": [
     "static/css/main.21eb6423.css",
-    "static/js/main.3743f7d8.js"
+    "static/js/main.bf8e45a3.js"
   ]
 }
