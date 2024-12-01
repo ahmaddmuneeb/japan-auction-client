@@ -17,7 +17,7 @@ import axios from "axios";
 import { formatNumberWithCommas } from "../utils/formatNumberWithCommas";
 // import SortDropdown from "./SortDropdown";
 
-const apiUrl = process.env.REACT_APP_URL;
+const apiUrl = "http://52.53.229.81:8000/api/cars/";
 
 const SideBar = () => {
   const [carsData, setCarsData] = useState([]);
