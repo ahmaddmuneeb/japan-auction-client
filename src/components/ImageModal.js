@@ -14,6 +14,12 @@ import { FaArrowAltCircleLeft, FaArrowAltCircleRight, FaTimes } from "react-icon
 const ImageModal = ({ isOpen, onClose, imageData, selectedIndex }) => {
   const [selected, setSelected] = useState(selectedIndex);
 
+  console.log({
+    selected: selected,
+    selectedImg: imageData,
+    selectedImg2: imageData[selected] ? imageData[selected]?.image_url : null,
+  });
+
   const handlePrevious = () => {
     setSelected((prevSelected) => (prevSelected === 0 ? imageData.length - 2 : prevSelected - 1));
   };

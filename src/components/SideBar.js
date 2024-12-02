@@ -12,6 +12,13 @@ import {
   Divider,
   Tooltip,
   IconButton,
+  Input,
+  RangeSlider,
+  RangeSliderTrack,
+  RangeSliderFilledTrack,
+  RangeSliderThumb,
+  Button,
+  Select,
 } from "@chakra-ui/react";
 import axios from "axios";
 import { formatNumberWithCommas } from "../utils/formatNumberWithCommas";
@@ -28,6 +35,13 @@ const SideBar = () => {
   const [carsLoading, setCarsLoading] = useState(false);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
 
+  const [currentSort, setCurrentSort] = useState("");
+  const [carSearch, setCarSearch] = useState("");
+  const [carYear, setCarYear] = useState("");
+  const [priceRange, setPriceRange] = useState([1000, 500000]);
+  const [disRange, setDisRange] = useState([1000, 500000]);
+  const [fuelType, setFuelType] = useState("");
+
   const [selectedCar, setSelectedCar] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -36,19 +50,52 @@ const SideBar = () => {
   const [prevUrl, setPrevUrl] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
-  const [currentSort, setCurrentSort] = useState("");
 
   useEffect(() => {
     getCarsNow(apiUrl);
-  }, []);
+  }, [carSearch, carYear]);
 
-  const getCarsNow = async (page, sortParam = "") => {
+  const getCarsNow = async (
+    page,
+    sortParam = "",
+    priceMin = null,
+    priceMax = null,
+    disMin = null,
+    disMax = null,
+    fuel = ""
+  ) => {
     setCarsLoading(true);
-    let urlWithSort = page;
     try {
+      let urlWithSort = new URL(page);
+      const params = urlWithSort.searchParams;
+
+      // Add or update the query parameters
       if (sortParam) {
-        urlWithSort = `${page}${page.includes("?") ? "&" : "?"}ordering=${sortParam}`;
+        params.set("ordering", sortParam);
       }
+      if (carSearch) {
+        params.set("car_brand_name", carSearch);
+      }
+      if (carYear) {
+        params.set("car_year", carYear);
+      }
+      if (priceMin !== null) {
+        params.set("price__gte", priceMin);
+      }
+      if (priceMax !== null) {
+        params.set("price__lte", priceMax);
+      }
+      if (disMin !== null) {
+        params.set("distance__gte", disMin);
+      }
+      if (disMax !== null) {
+        params.set("distance__lte", disMax);
+      }
+      if (fuel) {
+        params.set("fuel", fuel);
+      }
+
+      urlWithSort.search = params.toString();
 
       let response = await axios.get(urlWithSort, {
         headers: {
@@ -96,9 +143,151 @@ const SideBar = () => {
     setIsModalOpen(false);
   };
 
+  const handleClearFilters = () => {
+    setCurrentSort("");
+    setPriceRange([1000, 500000]);
+    setDisRange([1000, 500000]);
+    setFuelType("");
+    getCarsNow(
+      "http://54.153.48.69:8000/api/cars/?page=1",
+      "", // Empty string for price range (no filter applied)
+      null, // No price filter (min)
+      null, // No price filter (max)
+      null, // No mileage filter (min)
+      null, // No mileage filter (max)
+      "" // No fuel type filter
+    );
+  };
+
   return (
     <div>
-      <Flex ml={{ base: "0", md: "7.5%" }} flexDirection={{ base: "column", md: "row" }}>
+      <Container maxW={"8xl"} py={{ md: 8, base: 4 }} as={Stack} spacing={10}>
+        <Flex px={4} flexDirection={{ md: "row", base: "column" }} justify={"space-between"}>
+          <Text fontWeight={"bold"} fontSize={"4xl"} color={"blue.900"}>
+            Vehicles by GooNet
+          </Text>
+          <Text fontWeight={"bold"} fontSize={"xl"} color={"blue.900"} mt={4}>
+            Total Car Count: {carsData?.count || 0}
+          </Text>
+        </Flex>
+        <Box w={{ base: "100%", md: "100%" }} px={0}>
+          <Flex px={4} flexDirection={{ md: "row", base: "column" }} justify={"space-between"}>
+            <Box mr={{ base: 0, md: 2 }} my={{ base: 2, md: 0 }} w={"full"}>
+              <SortDropdown onSelectSort={handleSortSelect} />
+            </Box>
+            <Input
+              placeholder="Car Name"
+              value={carSearch}
+              onChange={(e) => setCarSearch(e.target.value)}
+              mx={{ base: 0, md: 2 }}
+              my={{ base: 2, md: 0 }}
+            />
+            <Input
+              placeholder="Car Year"
+              value={carYear}
+              onChange={(e) => setCarYear(e.target.value)}
+              ml={{ base: 0, md: 2 }}
+              my={{ base: 2, md: 0 }}
+            />
+          </Flex>
+        </Box>
+        <Box w={{ base: "100%", md: "100%" }} px={0}>
+          <Flex px={4} flexDirection={{ md: "row", base: "column" }} justify={"space-between"}>
+            <Box mr={{ base: 0, md: 2 }} my={{ base: 2, md: 0 }}>
+              <Select
+                placeholder="Select fuel type"
+                value={fuelType}
+                onChange={(e) => setFuelType(e.target.value)}
+              >
+                <option value="gasoline">Gasoline</option>
+                <option value="hybrid">Hybrid</option>
+                <option value="diesel">Diesel</option>
+              </Select>
+            </Box>
+            <Box
+              flexDirection={"column"}
+              w={{ md: "40%", base: "full" }}
+              mx={{ base: 0, md: 2 }}
+              my={{ base: 2, md: 0 }}
+            >
+              <Text>Mileage</Text>
+              <RangeSlider
+                // defaultValue={[20000, 500000]}
+                min={1000}
+                max={500000}
+                step={1000}
+                value={disRange}
+                onChange={(val) => setDisRange(val)}
+              >
+                <RangeSliderTrack>
+                  <RangeSliderFilledTrack />
+                </RangeSliderTrack>
+                <RangeSliderThumb index={0} />
+                <RangeSliderThumb index={1} />
+              </RangeSlider>
+            </Box>
+            <Box
+              flexDirection={"column"}
+              w={{ md: "40%", base: "full" }}
+              ml={{ base: 0, md: 2 }}
+              my={{ base: 2, md: 0 }}
+            >
+              <Text>Price Range</Text>
+              <RangeSlider
+                // defaultValue={[20000, 500000]}
+                min={1000}
+                max={500000}
+                step={1000}
+                value={priceRange}
+                onChange={(val) => setPriceRange(val)}
+              >
+                <RangeSliderTrack>
+                  <RangeSliderFilledTrack />
+                </RangeSliderTrack>
+                <RangeSliderThumb index={0} />
+                <RangeSliderThumb index={1} />
+              </RangeSlider>
+            </Box>
+          </Flex>
+        </Box>
+        <Box w={{ base: "100%", md: "100%" }} px={0}>
+          <Flex
+            px={4}
+            flexDirection={{ md: "row", base: "column" }}
+            justify={"flex-end"}
+            align={"center"}
+          >
+            <Button
+              colorScheme="blue"
+              w={{ md: "20%", base: "full" }}
+              mr={{ base: 0, md: 2 }}
+              mb={{ base: 2, md: 0 }}
+              onClick={() =>
+                getCarsNow(
+                  "http://54.153.48.69:8000/api/cars/?page=1",
+                  "",
+                  priceRange[0],
+                  priceRange[1],
+                  disRange[0],
+                  disRange[1],
+                  fuelType
+                )
+              }
+            >
+              Apply Price Filter
+            </Button>
+            <Button
+              colorScheme="red"
+              w={{ md: "20%", base: "full" }}
+              ml={{ base: 0, md: 2 }}
+              onClick={handleClearFilters}
+            >
+              Clear All Filters
+            </Button>
+          </Flex>
+        </Box>
+      </Container>
+      <Flex>
         {carsLoading ? (
           <>
             <Flex justifyContent="center" h={"80vh"} alignItems="center" w={"100%"}>
@@ -110,22 +299,7 @@ const SideBar = () => {
             {carsData?.results?.length > 0 ? (
               <>
                 <Box w={"100%"}>
-                  <Container maxW={"8xl"} py={{ md: 8, base: 16 }} as={Stack} spacing={10}>
-                    <Flex
-                      px={4}
-                      flexDirection={{ md: "row", base: "column" }}
-                      justify={"space-between"}
-                    >
-                      <Text fontWeight={"bold"} fontSize={"4xl"} color={"blue.900"}>
-                        Vehicles by GooNet
-                      </Text>
-                      <Text fontWeight={"bold"} fontSize={"xl"} color={"blue.900"} mt={4}>
-                        Total Car Count: {carsData?.count || 0}
-                      </Text>
-                    </Flex>
-                    <Box w={{ base: "100%", md: "250px" }} px={4}>
-                      <SortDropdown onSelectSort={handleSortSelect} />
-                    </Box>
+                  <Container maxW={"8xl"} py={{ md: 8, base: 4 }} as={Stack} spacing={10}>
                     <Flex alignItems="center" flexWrap="wrap" w={"full"}>
                       {carsData?.results?.map((car) => (
                         <Flex
@@ -232,9 +406,7 @@ const SideBar = () => {
                                       <Box as="span" color={"black"}>
                                         ¥
                                       </Box>
-                                      {`${formatNumberWithCommas(
-                                        parseInt(car?.total_price).toString()
-                                      )}`}
+                                      {`${formatNumberWithCommas(parseInt(car?.price).toString())}`}
                                     </Box>
 
                                     <Divider flex={1} orientation="horizontal" mx={3} />
@@ -308,7 +480,7 @@ const SideBar = () => {
               </>
             ) : (
               <>
-                <Box textAlign="center" m={20} p={10}>
+                <Box textAlign="center" m={20} p={10} width={"100%"}>
                   <Heading size="lg" color="blue.900">
                     No cars found!
                   </Heading>
@@ -318,12 +490,14 @@ const SideBar = () => {
           </>
         )}
 
-        <ImageModal
-          isOpen={isModalOpen}
-          onClose={closeModal}
-          imageData={selectedCar?.images}
-          selectedIndex={selectedImageIndex}
-        />
+        {selectedCar && (
+          <ImageModal
+            isOpen={isModalOpen}
+            onClose={closeModal}
+            imageData={selectedCar?.images}
+            selectedIndex={selectedImageIndex}
+          />
+        )}
       </Flex>
     </div>
   );
