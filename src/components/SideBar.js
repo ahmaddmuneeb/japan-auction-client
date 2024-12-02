@@ -25,6 +25,8 @@ import { formatNumberWithCommas } from "../utils/formatNumberWithCommas";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa6";
 import SortDropdown from "./SortDropdown";
 import ImageModal from "./ImageModal";
+import { GrLocation } from "react-icons/gr";
+import moment from "moment/moment";
 
 // import SortDropdown from "./SortDropdown";
 
@@ -38,8 +40,8 @@ const SideBar = () => {
   const [currentSort, setCurrentSort] = useState("");
   const [carSearch, setCarSearch] = useState("");
   const [carYear, setCarYear] = useState("");
-  const [priceRange, setPriceRange] = useState([1000, 500000]);
-  const [disRange, setDisRange] = useState([1000, 500000]);
+  const [disRange, setDisRange] = useState([10, 600000]);
+  const [priceRange, setPriceRange] = useState([50000, 100000000]);
   const [fuelType, setFuelType] = useState("");
 
   const [selectedCar, setSelectedCar] = useState(null);
@@ -210,20 +212,33 @@ const SideBar = () => {
               mx={{ base: 0, md: 2 }}
               my={{ base: 2, md: 0 }}
             >
-              <Text>Mileage</Text>
+              <Box>
+                <Text fontSize={"md"} fontWeight={"bold"} color={"blue.800"}>
+                  Mileage
+                </Text>
+                <Flex flexDirection={"row"} alignItems={"center"} justifyContent={"space-between"}>
+                  <Text fontSize={"md"} fontWeight={"bold"} color={"blue.800"}>
+                    {`${formatNumberWithCommas(disRange[0])} KM`}
+                  </Text>
+                  <Text fontSize={"md"} fontWeight={"bold"} color={"blue.800"}>
+                    {`${formatNumberWithCommas(disRange[1])} KM`}
+                  </Text>
+                </Flex>
+              </Box>
               <RangeSlider
                 // defaultValue={[20000, 500000]}
-                min={1000}
-                max={500000}
-                step={1000}
+                // 10, 600000
+                min={10}
+                max={600000}
+                step={500}
                 value={disRange}
                 onChange={(val) => setDisRange(val)}
               >
                 <RangeSliderTrack>
-                  <RangeSliderFilledTrack />
+                  <RangeSliderFilledTrack bg="blue.800" />
                 </RangeSliderTrack>
-                <RangeSliderThumb index={0} />
-                <RangeSliderThumb index={1} />
+                <RangeSliderThumb index={0} bg={"white"} boxSize={6} />
+                <RangeSliderThumb index={1} bg={"white"} boxSize={6} />
               </RangeSlider>
             </Box>
             <Box
@@ -232,20 +247,32 @@ const SideBar = () => {
               ml={{ base: 0, md: 2 }}
               my={{ base: 2, md: 0 }}
             >
-              <Text>Price Range</Text>
+              <Box>
+                <Text fontSize={"md"} fontWeight={"bold"} color={"blue.800"}>
+                  Price Range
+                </Text>
+                <Flex flexDirection={"row"} alignItems={"center"} justifyContent={"space-between"}>
+                  <Text fontSize={"md"} fontWeight={"bold"} color={"blue.800"}>
+                    {`¥${formatNumberWithCommas(priceRange[0])}`}
+                  </Text>
+                  <Text fontSize={"md"} fontWeight={"bold"} color={"blue.800"}>
+                    {`¥${formatNumberWithCommas(priceRange[1])}`}
+                  </Text>
+                </Flex>
+              </Box>
               <RangeSlider
                 // defaultValue={[20000, 500000]}
-                min={1000}
-                max={500000}
-                step={1000}
+                min={50000}
+                max={100000000}
+                step={10000}
                 value={priceRange}
                 onChange={(val) => setPriceRange(val)}
               >
                 <RangeSliderTrack>
-                  <RangeSliderFilledTrack />
+                  <RangeSliderFilledTrack bg="blue.800" />
                 </RangeSliderTrack>
-                <RangeSliderThumb index={0} />
-                <RangeSliderThumb index={1} />
+                <RangeSliderThumb index={0} bg={"white"} boxSize={6} />
+                <RangeSliderThumb index={1} bg={"white"} boxSize={6} />
               </RangeSlider>
             </Box>
           </Flex>
@@ -316,7 +343,7 @@ const SideBar = () => {
                             rounded="lg"
                             shadow={`0 4px 6px -1px ${"#ddd"}, 0 2px 4px -1px ${"#ddd"}`}
                             position="relative"
-                            onClick={() => openModal(car)} // Open modal on car click
+                            onClick={() => openModal(car)}
                           >
                             <Box position="relative" maxH="400px">
                               {car?.images && car?.images.length > 0 ? (
@@ -329,19 +356,30 @@ const SideBar = () => {
                             </Box>
 
                             <Box px="4" py={4}>
+                              <Flex justifyContent="space-between" alignItems="center">
+                                <Box
+                                  cursor={"pointer"}
+                                  color={"black"}
+                                  overflow="hidden"
+                                  textOverflow="ellipsis"
+                                  fontSize="xl"
+                                  fontWeight={"semibold"}
+                                >
+                                  {car?.car_name}
+                                </Box>
+                              </Flex>
                               <Flex justifyContent={"space-between"} alignItems={"center"}>
                                 <Box>
                                   <Flex flexDirection={"column"} justifyContent={"center"}>
                                     <Box
                                       as="span"
-                                      fontSize="lg"
+                                      fontSize="md"
                                       fontWeight={"semibold"}
                                       color="black"
                                     >
                                       Make
-                                    </Box>{" "}
-                                    <Text fontWeight={"semibold"} fontSize="xl">
-                                      {" "}
+                                    </Box>
+                                    <Text fontWeight={"semibold"} fontSize="md">
                                       {car?.car_brand_name}
                                     </Text>
                                   </Flex>
@@ -351,42 +389,34 @@ const SideBar = () => {
                                   <Flex flexDirection={"column"} justifyContent={"center"}>
                                     <Box
                                       as="span"
-                                      fontSize="lg"
+                                      fontSize="md"
                                       fontWeight={"semibold"}
                                       color="black"
                                     >
                                       Model
-                                    </Box>{" "}
-                                    <Text fontWeight={"semibold"} fontSize="xl">
-                                      {" "}
+                                    </Box>
+                                    <Text fontWeight={"semibold"} fontSize="md">
                                       {car?.car_year}
                                     </Text>
                                   </Flex>
                                 </Box>
                               </Flex>
-                              <Flex mt="1" justifyContent="space-between" alignContent="center">
-                                <Box
-                                  fontSize="md"
-                                  as="h4"
-                                  cursor={"pointer"}
-                                  textAlign={"left"}
-                                  color={"black"}
-                                  h={"76px"}
-                                  my={2}
-                                  overflow="hidden"
-                                  textOverflow="ellipsis"
-                                >
-                                  <Tooltip
-                                    label={car?.car_name}
-                                    bg="white"
-                                    placement={"top"}
-                                    fontSize={"sm"}
-                                    color={"blue.900"}
-                                  >
-                                    {car?.car_name}
-                                  </Tooltip>
-                                </Box>
-                              </Flex>
+
+                              <Box
+                                cursor={"pointer"}
+                                color={"black"}
+                                overflow="hidden"
+                                textOverflow="ellipsis"
+                                fontSize="md"
+                                fontWeight={"semibold"}
+                              >
+                                <Flex flexDirection={"row"} align={"center"}>
+                                  <GrLocation />
+                                  <Text fontWeight={"normal"} ml={2} fontSize="md">
+                                    {car?.location}
+                                  </Text>
+                                </Flex>
+                              </Box>
 
                               <Flex justifyContent="space-between">
                                 <Flex alignContent="center" flexDirection={"column"} flex={3}>
@@ -439,6 +469,27 @@ const SideBar = () => {
                                       textAlign={"right"}
                                     >
                                       Mileage
+                                    </Box>
+                                  </Flex>
+
+                                  <Flex flexDirection={"row"} mt={2} alignItems={"center"}>
+                                    <Box
+                                      fontSize={"10px"}
+                                      fontWeight={"semibold"}
+                                      color="black"
+                                      flex={2}
+                                    >
+                                      {moment(car?.create_at).format("MMM DD, YYYY - HH:MM:SS")}
+                                    </Box>
+                                    <Divider flex={1.5} orientation="horizontal" mx={3} />
+                                    <Box
+                                      as="span"
+                                      fontSize={"10px"}
+                                      fontWeight={"normal"}
+                                      flex={2}
+                                      textAlign={"right"}
+                                    >
+                                      Added
                                     </Box>
                                   </Flex>
                                 </Flex>
