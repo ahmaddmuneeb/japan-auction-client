@@ -5,29 +5,20 @@ import {
   ModalOverlay,
   ModalContent,
   ModalHeader,
-  ModalCloseButton,
   ModalBody,
   IconButton,
   Box,
 } from "@chakra-ui/react";
-import {
-  FaArrowAltCircleLeft,
-  FaArrowAltCircleRight,
-  FaTimes,
-} from "react-icons/fa";
+import { FaArrowAltCircleLeft, FaArrowAltCircleRight, FaTimes } from "react-icons/fa";
 
 const ImageModal = ({ isOpen, onClose, imageData, selectedIndex }) => {
   const [selected, setSelected] = useState(selectedIndex);
 
   const handlePrevious = () => {
-    setSelected((prevSelected) =>
-      prevSelected === 0 ? imageData.length - 2 : prevSelected - 1
-    );
+    setSelected((prevSelected) => (prevSelected === 0 ? imageData.length - 2 : prevSelected - 1));
   };
   const handleNext = () => {
-    setSelected((prevSelected) =>
-      prevSelected === imageData.length - 2 ? 0 : prevSelected + 1
-    );
+    setSelected((prevSelected) => (prevSelected === imageData.length - 2 ? 0 : prevSelected + 1));
   };
 
   return (
@@ -35,7 +26,6 @@ const ImageModal = ({ isOpen, onClose, imageData, selectedIndex }) => {
       <ModalOverlay bg="rgba(0, 0, 0, 0.5)" />
       <ModalContent bg="transparent">
         <ModalHeader></ModalHeader>
-        <ModalCloseButton m={10} p={2} color="white" />
         <ModalBody>
           <Box position="relative">
             <IconButton
@@ -56,7 +46,7 @@ const ImageModal = ({ isOpen, onClose, imageData, selectedIndex }) => {
               m="auto"
               justifyContent={"center"}
               objectFit="contain"
-              src={`data:image/jpeg;base64,${imageData[selected]}`}
+              src={`${imageData[selected]?.image_url}`}
               alt={`Image ${selected + 1}`}
             />
             <IconButton
@@ -71,14 +61,14 @@ const ImageModal = ({ isOpen, onClose, imageData, selectedIndex }) => {
               transform="translateY(-50%)"
             />
             <IconButton
-              onClick={onClose} // This will close the modal
+              onClick={onClose}
               aria-label="Close Modal"
               icon={<FaTimes />}
               size="lg"
               borderRadius="100%"
               position="absolute"
-              top="10px"
-              right="25px"
+              top={{ md: "10px", base: "24px" }}
+              right={{ md: "24px", base: 0 }}
             />
           </Box>
         </ModalBody>

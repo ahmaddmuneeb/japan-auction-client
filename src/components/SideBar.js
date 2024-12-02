@@ -16,6 +16,8 @@ import {
 import axios from "axios";
 import { formatNumberWithCommas } from "../utils/formatNumberWithCommas";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa6";
+import SortDropdown from "./SortDropdown";
+import ImageModal from "./ImageModal";
 
 // import SortDropdown from "./SortDropdown";
 
@@ -24,22 +26,31 @@ const apiUrl = "http://54.153.48.69:8000/api/cars/?page=1";
 const SideBar = () => {
   const [carsData, setCarsData] = useState([]);
   const [carsLoading, setCarsLoading] = useState(false);
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+
+  const [selectedCar, setSelectedCar] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
   // const [page, setPage] = useState(1);
   const [nextUrl, setNextUrl] = useState(null);
   const [prevUrl, setPrevUrl] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
+  const [currentSort, setCurrentSort] = useState("");
 
   useEffect(() => {
     getCarsNow(apiUrl);
   }, []);
 
-  const getCarsNow = async (page) => {
-    console.log({ page: page });
+  const getCarsNow = async (page, sortParam = "") => {
     setCarsLoading(true);
-
+    let urlWithSort = page;
     try {
-      let response = await axios.get(page, {
+      if (sortParam) {
+        urlWithSort = `${page}${page.includes("?") ? "&" : "?"}ordering=${sortParam}`;
+      }
+
+      let response = await axios.get(urlWithSort, {
         headers: {
           Accept: "application/json",
           "Content-Type": "application/json",
@@ -57,16 +68,13 @@ const SideBar = () => {
       let currentPage = 1;
       if (response?.data?.previous) {
         const prevPageParam = new URL(response?.data?.previous).searchParams.get("page");
-        // console.log({ prevPageParam: prevPageParam });
         currentPage = prevPageParam ? parseInt(prevPageParam) + 1 : 1;
       } else if (response?.data?.next) {
         const nextPageParam = new URL(response?.data?.next).searchParams.get("page");
-        // console.log({ nextPageParam: nextPageParam });
         currentPage = nextPageParam ? parseInt(nextPageParam) - 1 : 1;
       }
 
       setCurrentPage(currentPage);
-
       setCarsLoading(false);
     } catch (error) {
       console.error("Error fetching cars:", error);
@@ -74,47 +82,23 @@ const SideBar = () => {
     }
   };
 
+  const handleSortSelect = (sortValue) => {
+    setCurrentSort(sortValue);
+    getCarsNow(apiUrl, sortValue);
+  };
+
+  const openModal = (car) => {
+    setSelectedCar(car);
+    setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+  };
+
   return (
     <div>
       <Flex ml={{ base: "0", md: "7.5%" }} flexDirection={{ base: "column", md: "row" }}>
-        {/* <VehicleFilter
-          makes={makes}
-          models={models}
-          YearRange={yearRange}
-          MileageRange={mileageRange}
-          PriceRange={priceRange}
-          bodyStyle={bodyStyle}
-          selectedBodyStyle={selectedBodyStyle}
-          driveTrain={driveTrain}
-          fuel_type={fuel_type}
-          selectedFuelType={selectedFuelType}
-          selectedDriveTrain={selectedDriveTrain}
-          setSelectedMakes={setSelectedMakes}
-          setSelectedModels={setSelectedModels}
-          setSelectedDriveTrain={setSelectedDriveTrain}
-          setSelectedBodyStyle={setSelectedBodyStyle}
-          setSelectedFuelTypes={setSelectedFuelType}
-          setYearRange={setYearRange}
-          setMileageRange={setMileageRange}
-          setPriceRange={setPriceRange}
-          setModels={setModels}
-          // transmissions={transmissions}
-          // selectedTransmissions={selectedTransmissions}
-          selectedMakes={selectedMakes}
-          selectedModels={selectedModels}
-          onMakeChange={handleMakeChange}
-          onModelChange={handleModelChange}
-          onBodyChange={handleBodyChange}
-          onDriveChange={handleDriveChange}
-          onFuelChange={handleFuelTypes}
-          // onTransmissionChange={handleTransmissionChange}
-          onYearChange={handleYearChange}
-          onMileageChange={handleMileageChange}
-          onPriceChange={handlePriceChange}
-          onKeywordChange={handleKeywordChange}
-          onApplyFilters={() => handleApplyFilters()}
-          rangeLoading={rangeLoading}
-        /> */}
         {carsLoading ? (
           <>
             <Flex justifyContent="center" h={"80vh"} alignItems="center" w={"100%"}>
@@ -127,17 +111,21 @@ const SideBar = () => {
               <>
                 <Box w={"100%"}>
                   <Container maxW={"8xl"} py={{ md: 8, base: 16 }} as={Stack} spacing={10}>
-                    <Flex px={4} flexDirection={"row"} justify={"space-between"}>
+                    <Flex
+                      px={4}
+                      flexDirection={{ md: "row", base: "column" }}
+                      justify={"space-between"}
+                    >
                       <Text fontWeight={"bold"} fontSize={"4xl"} color={"blue.900"}>
                         Vehicles by GooNet
                       </Text>
                       <Text fontWeight={"bold"} fontSize={"xl"} color={"blue.900"} mt={4}>
                         Total Car Count: {carsData?.count || 0}
                       </Text>
-                      {/* <Box w={{ base: "100%", md: "15%" }} mt={4}>
-                        <SortDropdown onSelectSort={handleSortSelect} />
-                      </Box> */}
                     </Flex>
+                    <Box w={{ base: "100%", md: "250px" }} px={4}>
+                      <SortDropdown onSelectSort={handleSortSelect} />
+                    </Box>
                     <Flex alignItems="center" flexWrap="wrap" w={"full"}>
                       {carsData?.results?.map((car) => (
                         <Flex
@@ -154,6 +142,7 @@ const SideBar = () => {
                             rounded="lg"
                             shadow={`0 4px 6px -1px ${"#ddd"}, 0 2px 4px -1px ${"#ddd"}`}
                             position="relative"
+                            onClick={() => openModal(car)} // Open modal on car click
                           >
                             <Box position="relative" maxH="400px">
                               {car?.images && car?.images.length > 0 ? (
@@ -287,30 +276,6 @@ const SideBar = () => {
                         </Flex>
                       ))}
                     </Flex>
-                    {/* <Flex align="center" justify={"center"} mt={4}>
-                      <Button
-                        color={"white"}
-                        bgColor="blue.900"
-                        _hover={{ bgColor: "blue.800" }}
-                        onClick={() => prevUrl && getCarsNow(prevUrl)}
-                        isDisabled={!prevUrl}
-                        width={"16%"}
-                        mx={4}
-                      >
-                        Previous
-                      </Button>
-                      <Button
-                        color={"white"}
-                        bgColor="blue.900"
-                        _hover={{ bgColor: "blue.800" }}
-                        onClick={() => nextUrl && getCarsNow(nextUrl)}
-                        isDisabled={!nextUrl}
-                        width={"16%"}
-                        mx={2}
-                      >
-                        Next
-                      </Button>
-                    </Flex> */}
                     <Flex align="center" justify={"space-between"} mt={4} mx={4}>
                       <Text fontWeight="bold">
                         Page {currentPage} of {totalPages}
@@ -320,21 +285,18 @@ const SideBar = () => {
                           color={"white"}
                           bgColor="blue.900"
                           _hover={{ bgColor: "blue.800" }}
-                          onClick={() => prevUrl && getCarsNow(prevUrl)}
+                          onClick={() => prevUrl && getCarsNow(prevUrl, currentSort)}
                           isDisabled={!prevUrl}
-                          // width={"16%"}
                           mx={4}
                         >
-                          {/* Previous */}
                           <FaChevronLeft />
                         </IconButton>
                         <IconButton
                           color={"white"}
                           bgColor="blue.900"
                           _hover={{ bgColor: "blue.800" }}
-                          onClick={() => nextUrl && getCarsNow(nextUrl)}
+                          onClick={() => nextUrl && getCarsNow(nextUrl, currentSort)}
                           isDisabled={!nextUrl}
-                          // width={"16%"}
                           mx={2}
                         >
                           <FaChevronRight />
@@ -355,6 +317,13 @@ const SideBar = () => {
             )}
           </>
         )}
+
+        <ImageModal
+          isOpen={isModalOpen}
+          onClose={closeModal}
+          imageData={selectedCar?.images}
+          selectedIndex={selectedImageIndex}
+        />
       </Flex>
     </div>
   );

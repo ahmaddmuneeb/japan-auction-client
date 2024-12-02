@@ -6,10 +6,10 @@ export const counterSlice = createSlice({
   initialState: {
     value: 0,
     count: 0,
-    searchBy:null,
+    searchBy: null,
     csvData: [],
     slideshowVehicle: {},
-    filters:{
+    filters: {
       makes: [],
       models: [],
       body_style: [],
@@ -18,11 +18,11 @@ export const counterSlice = createSlice({
       mileageRange: [7000, 228000],
       priceRange: [0, 85000],
       fuel_type: [],
-      sortBy:"",
-      sortOrder:"",
+      sortBy: "",
+      sortOrder: "",
       change: false
     },
-    searchFilter:{
+    searchFilter: {
       makes: [],
       body_style: [],
       drive_train: [],
@@ -55,16 +55,13 @@ export const counterSlice = createSlice({
     clearSearchBy: (state) => {
       state.searchBy = null;
     },
-    // setFilters : (state, action) => {
-    //   state.filters = action.payload;
-    // },
     setFilters: (state, action) => {
       state.filters = {
         ...state.filters,
         ...action.payload
       };
     },
-    clearFilters : (state) => {
+    clearFilters: (state) => {
       state.filters = {
         makes: [],
         models: [],
@@ -74,31 +71,55 @@ export const counterSlice = createSlice({
         mileageRange: [7000, 228000],
         priceRange: [0, 85000],
         fuel_type: [],
-        sortBy:"",
-        sortOrder:"",
+        sortBy: "",
+        sortOrder: "",
         change: false
-    }
-  },
-  setSearchFilter : (state, action) => {
-    state.searchFilter = action.payload;
-  },
-  clearSearchFilters : (state) => {
-    state.searchFilter = {
-      makes: [],
-      body_style: [],
-      drive_train: [],
-      priceRange: [0, 85000],
-      model:[]
+      };
+    },
+    setSearchFilter: (state, action) => {
+      state.searchFilter = action.payload;
+    },
+    updateFilters: (state, action) => {
+      // Directly update the filters object
+      state.filters = {
+        ...state.filters,
+        sortBy: action.payload.sortBy || state.filters.sortBy,
+        sortOrder: action.payload.sortOrder || state.filters.sortOrder
+      };
+    },
+    clearSearchFilters: (state) => {
+      state.searchFilter = {
+        makes: [],
+        body_style: [],
+        drive_train: [],
+        priceRange: [0, 85000],
+        model: []
+      };
+    },
   }
-},
-}
 });
 
-export const { setCsvData, setCount, clearCsvData, clearCount,setFilters , setSearchFilter , clearSearchFilters , clearFilters , setSearchBy , clearSearchBy ,setSlideshowVehicle, clearSlideshowVehicle } = counterSlice.actions;
+export const { 
+  setCsvData, 
+  setCount, 
+  clearCsvData, 
+  clearCount, 
+  setFilters, 
+  setSearchFilter, 
+  clearSearchFilters, 
+  clearFilters, 
+  setSearchBy, 
+  clearSearchBy, 
+  setSlideshowVehicle, 
+  clearSlideshowVehicle ,
+  updateFilters
+} = counterSlice.actions;
+
 export const selectCount = (state) => state.counter.count;
 export const selectCsvData = (state) => state.counter.csvData;
 export const selectSlideshowVehicle = (state) => state.counter.slideshowVehicle;
 export const selectSearchBy = (state) => state.counter.searchBy;
 export const selectFilters = (state) => state.counter.filters;
 export const selectSearchFilter = (state) => state.counter.searchFilter;
+
 export default counterSlice.reducer;
